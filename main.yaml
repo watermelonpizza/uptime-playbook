@@ -1,0 +1,7 @@
+---
+- name: main playbook
+  hosts: all
+
+  tasks:
+    - name: ping local machine
+      ping:

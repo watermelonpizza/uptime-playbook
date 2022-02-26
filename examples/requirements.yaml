@@ -1,0 +1,10 @@
+---
+# to install any requirements, copy this file to the root of the repo
+# then install with ansible-galaxy
+# cp examples/requirements.yaml .
+# ansible-galaxy install -r requirements.yaml
+
+# an exmaple role like docker would look like:
+roles:
+ - name: community.docker
+   version: 2.2.0

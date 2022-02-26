@@ -1,0 +1,4 @@
+---
+skip_list:
+  # don't lint yaml, we use yamllint for that
+  - yaml
