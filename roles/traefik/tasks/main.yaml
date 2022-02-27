@@ -1,0 +1,73 @@
+---
+- name: Ensure traefik_cloudflare_dns_token is set if https is enabled
+  assert:
+    that:
+      - traefik_cloudflare_dns_token is not ""
+  when: traefik_enable_https
+
+- name: Ensure traefik_acme_email is set if https is enabled
+  assert:
+    that:
+      - traefik_acme_email is not ""
+  when: traefik_enable_https
+
+- name: Download and extract traefik executable
+  ansible.builtin.unarchive:
+    # yamllint disable-line rule:line-length
+    src: https://github.com/traefik/traefik/releases/download/{{ traefik_version }}/traefik_{{ traefik_version }}_linux_{{ traefik_architecture }}.tar.gz
+    dest: /usr/local/bin
+    remote_src: true
+    include:
+      - traefik
+    mode: u=rwx,g=rx,o=rx
+
+- name: Ensure libcap2-bin is installed
+  ansible.builtin.apt:
+    name: libcap2-bin
+    state: present
+
+- name: Allow the traefik service to bind to privileged ports
+  ansible.builtin.command:
+    cmd: setcap 'cap_net_bind_service=+ep' /usr/local/bin/traefik
+  changed_when: false
+
+- name: Ensure the {{ traefik_user }} user exists
+  ansible.builtin.user:
+    name: "{{ traefik_user }}"
+    home: "{{ traefik_home }}"
+    create_home: false
+    shell: /usr/sbin/nologin
+    system: true
+    state: present
+
+- name: Create the traefik config directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: u=rwx,g=rx,o=
+    owner: "{{ traefik_user }}"
+    group: "{{ traefik_user }}"
+  loop:
+    - "{{ traefik_config_directory }}"
+    - "{{ traefik_config_directory }}/dynamic"
+    - "{{ traefik_config_directory }}/acme"
+
+- name: Copy the traefik config
+  ansible.builtin.template:
+    src: templates/traefik.yaml.j2
+    dest: "{{ traefik_config_directory }}/traefik.yaml"
+    mode: u=rw,g=r,o=
+    owner: "{{ traefik_user }}"
+    group: "{{ traefik_user }}"
+
+- name: Copy the template file for the traefik service
+  ansible.builtin.template:
+    src: templates/traefik.service.j2
+    dest: /etc/systemd/system/traefik.service
+    mode: u=rw,g=r,o=
+
+- name: Ensure the service is enabled and running
+  ansible.builtin.service:
+    name: traefik.service
+    state: started
+    enabled: true

@@ -1,0 +1,32 @@
+api:
+  insecure: true
+
+entryPoints:
+  web:
+    address: ":80"
+
+{% if traefik_enable_https %}
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+
+  websecure:
+    address: ":443"
+
+certificatesResolvers:
+  defaultResolver:
+    acme:
+      email: {{ traefik_acme_email }}
+      storage: {{ traefik_config_directory }}/acme/acme.json
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+{% endif %}
+
+providers:
+  file:
+    directory: {{ traefik_config_directory }}/dynamic
+    watch: true

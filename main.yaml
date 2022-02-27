@@ -2,6 +2,15 @@
 - name: main playbook
   hosts: all
 
+  roles:
+    - traefik
+    - uptimekuma
+
   tasks:
-    - name: ping local machine
-      ping:
+    - name: copy in the uptime-kuma traefik config
+      ansible.builtin.template:
+        src: templates/uptime-kuma.yaml.j2
+        dest: "{{ traefik_config_directory }}/dynamic/traefik.yaml"
+        mode: u=rw,g=r,o=
+        order: "{{ traefik_user }}"
+        group: "{{ traefik_user }}"

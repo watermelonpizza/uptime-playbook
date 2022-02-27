@@ -7,6 +7,10 @@ platforms:
   - name: instance
     image: python:3-bullseye
     pre_build_image: true
+    published_ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
 provisioner:
   name: ansible
 verifier:

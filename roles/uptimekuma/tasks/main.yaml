@@ -1,0 +1,51 @@
+---
+- name: import nodejs role
+  ansible.builtin.import_role:
+    name: nodejs
+
+- name: Ensure the {{ uptime_kuma_user }} user exists
+  ansible.builtin.user:
+    name: "{{ uptime_kuma_user }}"
+    home: "{{ uptime_kuma_home }}"
+    shell: /usr/sbin/nologin
+    system: true
+    state: present
+
+- name: Clone the uptime-kuma repo
+  ansible.builtin.git:
+    repo: https://github.com/louislam/uptime-kuma.git
+    dest: "{{ uptime_kuma_installation_directory }}"
+    version: "{{ uptime_kuma_version }}"
+  become: true
+  become_user: "{{ uptime_kuma_user }}"
+  register: uptime_git
+
+- name: install npm dependencies  # noqa no-handler
+  community.general.npm:
+    ci: true
+    production: true
+    path: "{{ uptime_kuma_installation_directory }}"
+  become: true
+  become_user: "{{ uptime_kuma_user }}"
+  when: uptime_git.changed
+  notify: restart uptime-kuma
+
+- name: run download-dist  # noqa no-handler
+  ansible.builtin.command:
+    cmd: npm run download-dist
+    chdir: "{{ uptime_kuma_installation_directory }}"
+  become: true
+  become_user: "{{ uptime_kuma_user }}"
+  when: uptime_git.changed
+  notify: restart uptime-kuma
+
+- name: Copy the template file for the uptime-kuma service
+  ansible.builtin.template:
+    src: templates/uptime-kuma.service.j2
+    dest: /etc/systemd/system/uptime-kuma.service
+    mode: u=rw,g=r,o=r
+
+- name: Ensure the service is enabled
+  ansible.builtin.service:
+    name: uptime-kuma.service
+    enabled: true

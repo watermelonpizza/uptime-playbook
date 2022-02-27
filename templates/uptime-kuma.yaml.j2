@@ -1,0 +1,12 @@
+http:
+  routers:
+    uptime-kuma:
+      entryPoints:
+        - 80
+      service: uptime-kuma
+
+  services:
+    uptime-kuma:
+      loadBalancer:
+        servers:
+          - url: localhost:3001

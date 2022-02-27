@@ -1,0 +1,5 @@
+---
+- name: restart uptime-kuma
+  ansible.builtin.service:
+    name: uptime-kuma.service
+    state: restart

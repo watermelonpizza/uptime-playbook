@@ -1,0 +1,12 @@
+---
+traefik_user: traefik
+traefik_version: "v2.6.1"
+traefik_architecture: "amd64"
+
+traefik_home: /var/www
+traefik_config_directory: /etc/traefik
+
+traefik_enable_https: false
+
+traefik_acme_email:
+traefik_cloudflare_dns_token:
