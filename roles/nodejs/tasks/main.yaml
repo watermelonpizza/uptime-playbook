@@ -18,7 +18,7 @@
     update_cache: true
     cache_valid_time: 3600
 
-- name: Ensure Node.js and npm are installed.
+- name: Ensure nodejs is installed
   apt:
     # e.g nodejs=16*
     name: nodejs={{ nodejs_version|regex_replace('x', '') }}*

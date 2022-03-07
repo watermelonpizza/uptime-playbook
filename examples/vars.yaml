@@ -1,0 +1,4 @@
+---
+# Bare domain. No forward slash on the end, no http or https infront.
+# Example value: example.com, uptime.mydomain.org etc
+uptime_kuma_domain:

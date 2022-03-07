@@ -16,34 +16,47 @@
     repo: https://github.com/louislam/uptime-kuma.git
     dest: "{{ uptime_kuma_installation_directory }}"
     version: "{{ uptime_kuma_version }}"
-  become: true
-  become_user: "{{ uptime_kuma_user }}"
   register: uptime_git
+  notify: set directory permissions
 
-- name: install npm dependencies  # noqa no-handler
-  community.general.npm:
-    ci: true
-    production: true
-    path: "{{ uptime_kuma_installation_directory }}"
-  become: true
-  become_user: "{{ uptime_kuma_user }}"
+# use the npm module with ci + production
+# when https://github.com/ansible-collections/community.general/pull/4299 is fixed
+# - name: install npm dependencies  # noqa no-handler
+#   community.general.npm:
+#     path: "{{ uptime_kuma_installation_directory }}"
+#     state: present
+#     production: true
+#   when: uptime_git.changed
+#   notify:
+#     - set directory permissions
+#     - restart uptime-kuma
+
+- name: run npm ci (to be replaced with npm module in the future)
+  ansible.builtin.command:
+    cmd: npm ci --production
+    chdir: "{{ uptime_kuma_installation_directory }}"
   when: uptime_git.changed
-  notify: restart uptime-kuma
+  notify:
+    - set directory permissions
+    - restart uptime-kuma
 
 - name: run download-dist  # noqa no-handler
   ansible.builtin.command:
     cmd: npm run download-dist
     chdir: "{{ uptime_kuma_installation_directory }}"
-  become: true
-  become_user: "{{ uptime_kuma_user }}"
   when: uptime_git.changed
-  notify: restart uptime-kuma
+  notify:
+    - set directory permissions
+    - restart uptime-kuma
 
 - name: Copy the template file for the uptime-kuma service
   ansible.builtin.template:
     src: templates/uptime-kuma.service.j2
     dest: /etc/systemd/system/uptime-kuma.service
     mode: u=rw,g=r,o=r
+  notify:
+    - daemon reload
+    - restart uptime-kuma
 
 - name: Ensure the service is enabled
   ansible.builtin.service:

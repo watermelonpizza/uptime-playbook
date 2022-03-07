@@ -1,15 +1,12 @@
 ---
-- name: Ensure traefik_cloudflare_dns_token is set if https is enabled
-  assert:
-    that:
-      - traefik_cloudflare_dns_token is not ""
-  when: traefik_enable_https
-
-- name: Ensure traefik_acme_email is set if https is enabled
-  assert:
-    that:
-      - traefik_acme_email is not ""
-  when: traefik_enable_https
+- name: Fail if required settings for https are not defined
+  fail:
+    msg: >-
+      You need to define a required configuration setting (`{{ item }}`) because you have enabled traefik_enable_https.
+  when: traefik_enable_https and vars[item] == ''
+  with_items:
+    - "traefik_acme_email"
+    - "traefik_cloudflare_dns_token"
 
 - name: Download and extract traefik executable
   ansible.builtin.unarchive:
@@ -20,6 +17,8 @@
     include:
       - traefik
     mode: u=rwx,g=rx,o=rx
+    owner: root
+    group: root
 
 - name: Ensure libcap2-bin is installed
   ansible.builtin.apt:
@@ -59,15 +58,19 @@
     mode: u=rw,g=r,o=
     owner: "{{ traefik_user }}"
     group: "{{ traefik_user }}"
+  notify: restart traefik
 
 - name: Copy the template file for the traefik service
   ansible.builtin.template:
     src: templates/traefik.service.j2
     dest: /etc/systemd/system/traefik.service
     mode: u=rw,g=r,o=
+  notify:
+    - daemon reload
+    - restart traefik
 
-- name: Ensure the service is enabled and running
+- name: Ensure the service is enabled
   ansible.builtin.service:
     name: traefik.service
-    state: started
     enabled: true
+  notify: restart traefik

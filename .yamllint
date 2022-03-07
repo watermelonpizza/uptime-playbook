@@ -3,6 +3,7 @@ extends: default
 
 ignore: |
     .venv
+    inventory
 
 rules:
   line-length:

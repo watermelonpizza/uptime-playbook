@@ -1,6 +1,13 @@
 ---
 - name: main playbook
   hosts: all
+  become: true
+
+  pre_tasks:
+    - name: Fail if domain is not set
+      fail:
+        msg: You need to set the uptime_kuma_domain, this cannot be blank
+      when: uptime_kuma_domain == ''
 
   roles:
     - traefik
@@ -10,7 +17,8 @@
     - name: copy in the uptime-kuma traefik config
       ansible.builtin.template:
         src: templates/uptime-kuma.yaml.j2
-        dest: "{{ traefik_config_directory }}/dynamic/traefik.yaml"
+        dest: "{{ traefik_config_directory }}/dynamic/uptime-kuma.yaml"
         mode: u=rw,g=r,o=
-        order: "{{ traefik_user }}"
+        owner: "{{ traefik_user }}"
         group: "{{ traefik_user }}"
+      notify: restart uptime-kuma
