@@ -1,0 +1,19 @@
+http:
+  routers:
+    uptime-kuma:
+      rule: "Host(`{{ uptime_kuma_domain }}`)"
+      service: uptime-kuma
+
+{% if traefik_enable_https %}
+      tls:
+        certResolver: defaultResolver
+{% else %}
+      entryPoints:
+        - 80
+{% endif %}
+
+  services:
+    uptime-kuma:
+      loadBalancer:
+        servers:
+          - url: http://localhost:3001

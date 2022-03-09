@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: all
+  become_method: su
+  become_flags: '-s /bin/sh'
+
+  roles:
+    - traefik
