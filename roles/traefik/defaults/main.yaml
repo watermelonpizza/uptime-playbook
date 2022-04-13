@@ -1,5 +1,7 @@
 ---
 traefik_user: traefik
+
+# see https://github.com/traefik/traefik/releases
 traefik_version: "v2.6.1"
 traefik_architecture: "amd64"
 

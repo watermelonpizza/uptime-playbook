@@ -76,7 +76,10 @@ In all cases, these files are ignored by git to ensure no secrets are commited t
 |--------|--------|-------|-----------|
 |`nodejs_version`|optional|`16.x`|Version of nodejs to install for uptime kuma|
 
-#### Traefik
+#### [Traefik](https://github.com/traefik/traefik)
+
+See traefik releases at [https://github.com/traefik/traefik/releases](https://github.com/traefik/traefik/releases)
+
 
 If `traefik_enable_https` is enabled you must have the conditionally required variables set.
 
@@ -91,7 +94,9 @@ If `traefik_enable_https` is enabled you must have the conditionally required va
 |`traefik_acme_email`|**conditionally required**||Email address used for letsencrypt|
 |`traefik_cloudflare_dns_token`|**conditionally required**||Token to allow letsencrypt to verify domains|
 
-#### Uptime Kuma
+#### [Uptime Kuma](https://github.com/louislam/uptime-kuma)
+
+See uptime kuma releases at [https://github.com/louislam/uptime-kuma/releases](https://github.com/louislam/uptime-kuma/releases)
 
 |variable|required|default|description|
 |--------|--------|-------|-----------|

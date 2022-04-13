@@ -1,6 +1,6 @@
 ---
 uptime_kuma_user: uptime
-uptime_kuma_version: 1.12.1
+uptime_kuma_version: 1.14.0
 
 uptime_kuma_home: /home/uptime
 uptime_kuma_installation_directory: "{{ uptime_kuma_home }}/uptime-kuma"
